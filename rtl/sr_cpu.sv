@@ -22,6 +22,8 @@ module sr_cpu
     output  [31:0]  data_addr,      // data memory address
     input   [31:0]  data_data,      // data memory data
 
+    output          invalid_instr,
+
     input   [ 4:0]  debug_reg_addr, // debug access reg address
     output  [31:0]  debug_reg_data  // debug access reg data
 );
@@ -118,15 +120,16 @@ module sr_cpu
 
     sr_control sm_control
     (
-        .cmdOp      ( cmdOp       ),
-        .cmdF3      ( cmdF3       ),
-        .cmdF7      ( cmdF7       ),
-        .aluZero    ( aluZero     ),
-        .pcSrc      ( pcSrc       ),
-        .regWrite   ( regWrite    ),
-        .aluSrc     ( aluSrc      ),
-        .wdSrc      ( wdSrc       ),
-        .aluControl ( aluControl  )
+        .cmdOp         ( cmdOp         ),
+        .cmdF3         ( cmdF3         ),
+        .cmdF7         ( cmdF7         ),
+        .aluZero       ( aluZero       ),
+        .pcSrc         ( pcSrc         ),
+        .regWrite      ( regWrite      ),
+        .aluSrc        ( aluSrc        ),
+        .wdSrc         ( wdSrc         ),
+        .aluControl    ( aluControl    ),
+        .invalid_instr ( invalid_instr )
     );
 
     // debug register access

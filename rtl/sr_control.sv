@@ -21,7 +21,8 @@ module sr_control
     output logic        regWrite,
     output logic        aluSrc,
     output logic        wdSrc,
-    output logic [ 2:0] aluControl
+    output logic [ 2:0] aluControl,
+    output logic        invalid_instr
 );
     logic          branch;
     logic          condZero;
@@ -29,12 +30,13 @@ module sr_control
 
     always_comb
     begin
-        branch      = 1'b0;
-        condZero    = 1'b0;
-        regWrite    = 1'b0;
-        aluSrc      = 1'b0;
-        wdSrc       = 1'b0;
-        aluControl  = `ALU_ADD;
+        branch        = 1'b0;
+        condZero      = 1'b0;
+        regWrite      = 1'b0;
+        aluSrc        = 1'b0;
+        wdSrc         = 1'b0;
+        aluControl    = `ALU_ADD;
+        invalid_instr = 1'b0;
 
         casez ({ cmdF7, cmdF3, cmdOp })
             { `RVF7_ADD,  `RVF3_ADD,  `RVOP_ADD  } : begin regWrite = 1'b1; aluControl = `ALU_ADD;  end
@@ -48,6 +50,8 @@ module sr_control
 
             { `RVF7_ANY,  `RVF3_BEQ,  `RVOP_BEQ  } : begin branch = 1'b1; condZero = 1'b1; aluControl = `ALU_SUB; end
             { `RVF7_ANY,  `RVF3_BNE,  `RVOP_BNE  } : begin branch = 1'b1; aluControl = `ALU_SUB; end
+            
+            { `RVF7_ANY,  `RVF3_ANY,  `RVOP_ANY  } : begin invalid_instr = 1'b1; end
         endcase
     end
 
