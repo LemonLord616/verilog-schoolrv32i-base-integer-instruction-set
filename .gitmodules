@@ -1,0 +1,6 @@
+[submodule "include/basics-graphics-music"]
+	path = include/basics-graphics-music
+	url = https://github.com/yuri-panchul/basics-graphics-music
+[submodule "include/schoolRISCV"]
+	path = include/schoolRISCV
+	url = https://github.com/zhelnio/schoolRISCV
