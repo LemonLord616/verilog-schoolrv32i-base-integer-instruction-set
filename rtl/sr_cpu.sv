@@ -34,7 +34,7 @@ module sr_cpu
     wire        regWrite;
     wire        aluSrc;
     wire        wdSrc;
-    wire  [2:0] aluControl;
+    wire  [3:0] aluControl;
 
     // instruction decode wires
 

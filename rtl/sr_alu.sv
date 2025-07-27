@@ -22,12 +22,18 @@ module sr_alu
 
     always_comb
         case (oper)
-            default   : result =  srcA +  srcB;
-            `ALU_ADD  : result =  srcA +  srcB;
-            `ALU_OR   : result =  srcA |  srcB;
-            `ALU_SRL  : result =  srcA >> srcB [4:0];
-            `ALU_SLTU : result = (srcA <  srcB) ? 32'd1 : 32'd0;
-            `ALU_SUB  : result =  srcA -  srcB;
+            default   : result =  srcA +   srcB;
+            `ALU_ADD  : result =  srcA +   srcB;
+            `ALU_OR   : result =  srcA |   srcB;
+            `ALU_SRL  : result =  srcA >>  srcB [4:0];
+            `ALU_SLTU : result = (srcA <   srcB) ? 32'd1 : 32'd0;
+            `ALU_SUB  : result =  srcA -   srcB;
+            // New ones
+            `ALU_SLL  : result =  srcA <<  srcB [4:0];
+            `ALU_SLT  : result = ($signed(srcA) <  $signed(srcB)) ? 32'd1 : 32'd0; // Not quite sure about $signed()
+            `ALU_XOR  : result =  src1 ^   src2;
+            `ALU_SRA  : result =  src1 >>> src2;
+            `ALU_AND  : result =  src1 &   src2;
         endcase
 
     assign zero = (result == '0);

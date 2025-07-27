@@ -21,7 +21,7 @@ module sr_control
     output logic        regWrite,
     output logic        aluSrc,
     output logic        wdSrc,
-    output logic [ 2:0] aluControl,
+    output logic [ 3:0] aluControl,
     output logic        invalid_instr
 );
     logic          branch;
@@ -44,6 +44,13 @@ module sr_control
             { `RVF7_SRL,  `RVF3_SRL,  `RVOP_SRL  } : begin regWrite = 1'b1; aluControl = `ALU_SRL;  end
             { `RVF7_SLTU, `RVF3_SLTU, `RVOP_SLTU } : begin regWrite = 1'b1; aluControl = `ALU_SLTU; end
             { `RVF7_SUB,  `RVF3_SUB,  `RVOP_SUB  } : begin regWrite = 1'b1; aluControl = `ALU_SUB;  end
+
+            // New ones (R-type)
+            { `RVF7_SLL,  `RVF3_SLL,  `RVF3_SLL  } : begin regWrite = 1'b1; aluControl = `ALU_SLL;  end
+            { `RVF7_SLT,  `RVF3_SLT,  `RVF3_SLT  } : begin regWrite = 1'b1; aluControl = `ALU_SLT;  end
+            { `RVF7_XOR,  `RVF3_XOR,  `RVF3_XOR  } : begin regWrite = 1'b1; aluControl = `ALU_XOR;  end
+            { `RVF7_SRA,  `RVF3_SRA,  `RVF3_SRA  } : begin regWrite = 1'b1; aluControl = `ALU_SRA;  end
+            { `RVF7_AND,  `RVF3_AND,  `RVF3_AND  } : begin regWrite = 1'b1; aluControl = `ALU_AND;  end
 
             { `RVF7_ANY,  `RVF3_ADDI, `RVOP_ADDI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_ADD; end
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_LUI  } : begin regWrite = 1'b1; wdSrc  = 1'b1; end
