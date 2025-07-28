@@ -8,6 +8,8 @@
 //
 //  Modified in 2024-2025 by Yuri Panchul & Mike Kuskov.
 //
+//  Modified in 2025 by Marat Mestnikov
+//
 
 `include "sr_cpu.svh"
 
@@ -28,7 +30,7 @@ module sr_alu
             `ALU_SRL  : result =  srcA >>  srcB [4:0];
             `ALU_SLTU : result = (srcA <   srcB) ? 32'd1 : 32'd0;
             `ALU_SUB  : result =  srcA -   srcB;
-            // New ones
+            // New ones TODO: test
             `ALU_SLL  : result =  srcA <<  srcB [4:0];
             `ALU_SLT  : result = ($signed(srcA) <  $signed(srcB)) ? 32'd1 : 32'd0; // Not quite sure about $signed()
             `ALU_XOR  : result =  src1 ^   src2;

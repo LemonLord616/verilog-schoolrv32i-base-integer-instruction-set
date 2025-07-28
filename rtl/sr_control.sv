@@ -8,6 +8,8 @@
 //
 //  Modified in 2024-2025 by Yuri Panchul & Mike Kuskov.
 //
+//  Modified in 2025 by Marat Mestnikov
+//
 
 `include "sr_cpu.svh"
 
@@ -33,7 +35,7 @@ module sr_control
         branch        = 1'b0;
         condZero      = 1'b0;
         regWrite      = 1'b0;
-        aluSrc        = 1'b0;
+        aluSrc        = 1'b0; // 1 - immB, 0 - rd2
         wdSrc         = 1'b0;
         aluControl    = `ALU_ADD;
         invalid_instr = 1'b0;
@@ -45,18 +47,28 @@ module sr_control
             { `RVF7_SLTU, `RVF3_SLTU, `RVOP_SLTU } : begin regWrite = 1'b1; aluControl = `ALU_SLTU; end
             { `RVF7_SUB,  `RVF3_SUB,  `RVOP_SUB  } : begin regWrite = 1'b1; aluControl = `ALU_SUB;  end
 
-            // New ones (R-type)
-            { `RVF7_SLL,  `RVF3_SLL,  `RVF3_SLL  } : begin regWrite = 1'b1; aluControl = `ALU_SLL;  end
-            { `RVF7_SLT,  `RVF3_SLT,  `RVF3_SLT  } : begin regWrite = 1'b1; aluControl = `ALU_SLT;  end
-            { `RVF7_XOR,  `RVF3_XOR,  `RVF3_XOR  } : begin regWrite = 1'b1; aluControl = `ALU_XOR;  end
-            { `RVF7_SRA,  `RVF3_SRA,  `RVF3_SRA  } : begin regWrite = 1'b1; aluControl = `ALU_SRA;  end
-            { `RVF7_AND,  `RVF3_AND,  `RVF3_AND  } : begin regWrite = 1'b1; aluControl = `ALU_AND;  end
+            // New ones (R-type) TODO: test
+            { `RVF7_SLL,  `RVF3_SLL,  `RVOP_SLL  } : begin regWrite = 1'b1; aluControl = `ALU_SLL;  end
+            { `RVF7_SLT,  `RVF3_SLT,  `RVOP_SLT  } : begin regWrite = 1'b1; aluControl = `ALU_SLT;  end
+            { `RVF7_XOR,  `RVF3_XOR,  `RVOP_XOR  } : begin regWrite = 1'b1; aluControl = `ALU_XOR;  end
+            { `RVF7_SRA,  `RVF3_SRA,  `RVOP_SRA  } : begin regWrite = 1'b1; aluControl = `ALU_SRA;  end
+            { `RVF7_AND,  `RVF3_AND,  `RVOP_AND  } : begin regWrite = 1'b1; aluControl = `ALU_AND;  end
 
             { `RVF7_ANY,  `RVF3_ADDI, `RVOP_ADDI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_ADD; end
+            // New ones (I-type) TODO: test
+            { `RVF7_SLLI, `RVF3_SLLI, `RVOP_SLLI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_SLL; end
+            { `RVF7_ANY,  `RVF3_SLTI, `RVOP_SLTI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_SLT; end
+            { `RVF7_ANY,  `RVF3_SLTIU,`RVOP_SLTIU} : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_SLTU;end
+            { `RVF7_ANY,  `RVF3_XORI, `RVOP_XORI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_XOR; end
+            { `RVF7_SRLI, `RVF3_SRLI, `RVOP_SRLI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_SRL; end
+            { `RVF7_SRAI, `RVF3_SRAI, `RVOP_SRAI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_SRA; end
+            { `RVF7_ANY,  `RVF3_ORI,  `RVOP_ORI  } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_OR;  end
+            { `RVF7_ANY,  `RVF3_ANDI, `RVOP_ANDI } : begin regWrite = 1'b1; aluSrc = 1'b1; aluControl = `ALU_AND; end
+
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_LUI  } : begin regWrite = 1'b1; wdSrc  = 1'b1; end
 
             { `RVF7_ANY,  `RVF3_BEQ,  `RVOP_BEQ  } : begin branch = 1'b1; condZero = 1'b1; aluControl = `ALU_SUB; end
-            { `RVF7_ANY,  `RVF3_BNE,  `RVOP_BNE  } : begin branch = 1'b1; aluControl = `ALU_SUB; end
+            { `RVF7_ANY,  `RVF3_BNE,  `RVOP_BNE  } : begin branch = 1'b1; aluControl = `ALU_SUB; end // condZero = 0 by default
             
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_ANY  } : begin invalid_instr = 1'b1; end
         endcase
