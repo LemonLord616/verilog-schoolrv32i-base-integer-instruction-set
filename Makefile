@@ -16,31 +16,36 @@ help:
 # Generation and project creation
 # ------------------------------------------------------------------------------
 
-gen_asm:
+gen-asm:
     #  nc                              - Copyright notice will not be displayed
     #  a                               - assembly only, do not simulate
     #  ae<n>                           - terminate RARS with integer exit code if an assemble error occurs
     #  dump .text HexText program.hex  - dump segment .text to program.hex file in HexText format
-    
 	java -jar ./scripts/rars1_6.jar nc a ae1 dump .text HexText ./rtl/program.hex ./rtl/program.s
+
+rars: ./scripts/rars1_6.jar
+	java -jar ./scripts/rars1_6.jar &
 
 # ------------------------------------------------------------------------------
 # Simulation
 # ------------------------------------------------------------------------------
 
-simulate: sim-clean build run
+SIM_OUT_DIR := "./sim/icarus/output_files"
 
-build: rtl/common_top.sv
-	verilator ${VFLAGS} -Irtl -Iinclude/basics-graphics-music/labs/common -cc $< --exe sim/verilator/simulate.cpp -o common_top.out \
-		-CFLAGS "${SDL_CFLAGS}" -LDFLAGS "${SDL_LDFLAGS}" --Mdir sim/verilator/output_files \
-		--timescale 1ns/1ps -Wno-fatal # -Wno-MULTIDRIVEN -Wno-LATCH
-	make -C ./sim/verilator/output_files -f Vcommon_top.mk
+$(SIM_OUT_DIR):
+	rm -rf $(SIM_OUT_DIR)
+	mkdir $(SIM_OUT_DIR)
 
-run:
-	./sim/verilator/output_files/common_top.out
+sim-build: $(SIM_OUT_DIR)
+	iverilog -g2012 -o $(SIM_OUT_DIR)/sim.out -I ./rtl -I include/basics-graphics-music/labs/common \
+		include/basics-graphics-music/labs/common/*sv ./rtl/*.sv \
+		./sim/icarus/tb.sv # >> $(SIM_OUT_DIR)/log.txt 2>&1
+
+sim-run: sim-build gen-asm
+	vvp $(SIM_OUT_DIR)/sim.out # >> $(SIM_OUT_DIR)/log.txt 2>&1
 
 sim-clean:
-	rm -rf ./sim/verilator/output_files/
+	rm -rf ./sim/icarus/output_files/
 
 # ------------------------------------------------------------------------------
 # Synthesis

@@ -1,5 +1,3 @@
-`include "config.svh"
-
 module lab_top
 # (
     parameter  clk_mhz       = 50,
@@ -77,18 +75,24 @@ module lab_top
 
     sr_cpu cpu
     (
-        .clk     ( slow_clk ),
-        .rst     ( rst      ),
-        .regAddr ( regAddr  ),
-        .regData ( regData  ),
-        .imAddr  ( imAddr   ),
-        .imData  ( imData   )
+        .clk            ( slow_clk ),
+        .rst            ( rst      ),
+
+        .instr_addr     ( imAddr ),
+        .instr_data     ( imData ),
+        .data_addr      (  ),
+        .data_data      (  ),
+        
+        .invalid_instr  (  ),
+
+        .debug_reg_addr ( regAddr ),
+        .debug_reg_data ( regData )
     );
 
     instruction_rom # (.SIZE (64)) rom
     (
-        .a       ( imAddr   ),
-        .rd      ( imData   )
+        .addr    ( imAddr   ),
+        .rdata   ( imData   )
     );
 
     //------------------------------------------------------------------------
