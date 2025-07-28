@@ -34,7 +34,8 @@ module sr_cpu
     wire        aluZero;
     wire  [1:0] pcSrc;
     wire        regWrite;
-    wire  [1:0] aluSrc;
+    wire        aluSrcA;
+    wire  [1:0] aluSrcB;
     wire  [1:0] wdSrc;
     wire  [3:0] aluControl;
 
@@ -128,12 +129,13 @@ module sr_cpu
 
     // alu
 
+    wire  [31:0] srcA;
     logic [31:0] srcB;
-    wire [31:0] aluResult;
+    wire  [31:0] aluResult;
 
     always_comb
     begin
-        unique case (aluSrc)
+        unique case (aluSrcB)
             `ALUB_RD2   : srcB = rd2;
             `ALUB_IMM_I : srcB = immI;
             `ALUB_IMM_J : srcB = immJ;
@@ -141,9 +143,11 @@ module sr_cpu
         endcase
     end
 
+    assign srcA = aluSrcA == `ALUA_RD1 ? rd1 : pc;
+
     sr_alu alu
     (
-        .srcA       ( rd1         ),
+        .srcA       ( srcA         ),
         .srcB       ( srcB        ),
         .oper       ( aluControl  ),
         .zero       ( aluZero     ),
@@ -160,7 +164,8 @@ module sr_cpu
         .aluZero       ( aluZero       ),
         .pcSrc         ( pcSrc         ),
         .regWrite      ( regWrite      ),
-        .aluSrc        ( aluSrc        ),
+        .aluSrcA       ( aluSrcA       ),
+        .aluSrcB       ( aluSrcB       ),
         .wdSrc         ( wdSrc         ),
         .aluControl    ( aluControl    ),
         .invalid_instr ( invalid_instr )

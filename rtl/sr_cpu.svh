@@ -26,6 +26,9 @@
 `define ALUB_IMM_I  2'b01
 `define ALUB_IMM_J  2'b10
 `define ALUB_IMM_U  2'b11
+// ALU's srcA
+`define ALUA_RD1    1'b0
+`define ALUA_PC     1'b1
 // wdSrc
 `define WD_ALU      2'b00
 `define WD_PCPLUS4  2'b01 // jal/jar
@@ -46,9 +49,18 @@
 
 // Instruction opcode
 
-`define RVOP_BEQ    7'b1100011 // B-type
-`define RVOP_BNE    7'b1100011 // B-type
-`define RVOP_LUI    7'b0110111 // U-type
+// B-type
+`define RVOP_BEQ    7'b1100011
+`define RVOP_BNE    7'b1100011
+// New ones (B-type)
+`define RVOP_BLT    7'b1100011
+`define RVOP_BGE    7'b1100011
+`define RVOP_BLTU   7'b1100011
+`define RVOP_BGEU   7'b1100011
+// U-type
+`define RVOP_LUI    7'b0110111
+// New one (U-type)
+`define RVOP_AUIPC  7'b0010111
 // I-type
 `define RVOP_ADDI   7'b0010011
 `define RVOP_SLLI   7'b0010011
@@ -78,9 +90,13 @@
 
 // Instruction funct3
 
+// B-type
 `define RVF3_BEQ    3'b000
 `define RVF3_BNE    3'b001
-`define RVF3_ADD    3'b000
+`define RVF3_BLT    3'b100
+`define RVF3_BGE    3'b101
+`define RVF3_BLTU   3'b110
+`define RVF3_BGEU   3'b111
 // I-type
 `define RVF3_ADDI   3'b000
 `define RVF3_SLLI   3'b001
@@ -92,11 +108,11 @@
 `define RVF3_ORI    3'b110
 `define RVF3_ANDI   3'b111
 // R-type
+`define RVF3_ADD    3'b000
 `define RVF3_OR     3'b110
 `define RVF3_SRL    3'b101
 `define RVF3_SLTU   3'b011
 `define RVF3_SUB    3'b000
-`define RVF3_ANY    3'b???
 `define RVF3_SLL    3'b001
 `define RVF3_SLT    3'b010
 `define RVF3_XOR    3'b100
@@ -104,6 +120,8 @@
 `define RVF3_AND    3'b111
 // I-type Jump
 `define RVF3_JALR   3'b000
+
+`define RVF3_ANY    3'b???
 
 // Instruction funct7
 
