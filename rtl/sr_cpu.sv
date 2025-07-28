@@ -8,6 +8,8 @@
 //
 //  Modified in 2024-2025 by Yuri Panchul & Mike Kuskov.
 //
+//  Modified in 2025 by Marat Mestnikov
+//
 
 `include "sr_cpu.svh"
 
@@ -30,10 +32,10 @@ module sr_cpu
     // control wires
 
     wire        aluZero;
-    wire        pcSrc;
+    wire  [1:0] pcSrc;
     wire        regWrite;
-    wire        aluSrc;
-    wire        wdSrc;
+    wire  [1:0] aluSrc;
+    wire  [1:0] wdSrc;
     wire  [3:0] aluControl;
 
     // instruction decode wires
@@ -47,13 +49,26 @@ module sr_cpu
     wire [31:0] immI;
     wire [31:0] immB;
     wire [31:0] immU;
+    wire [31:0] immJ;
 
     // program counter
 
-    wire [31:0] pc;
-    wire [31:0] pcBranch = pc + immB;
-    wire [31:0] pcPlus4  = pc + 32'd4;
-    wire [31:0] pcNext   = pcSrc ? pcBranch : pcPlus4;
+    logic [31:0] pc;
+    logic [31:0] pcNext;
+    wire [31:0] pcBranch  = pc + immB;
+    wire [31:0] pcPlus4   = pc + 32'd4;
+    wire [31:0] pcJump    = pc + immJ; // least significant bit is decoded as zero in decoder
+    wire [31:0] pcJumpReg = (rd1 + immI) & ~32'b1; // least significant bit is zero
+
+    always_comb
+    begin
+        unique case (pcSrc)
+            `PC_PLUS4  : pcNext = pcPlus4;
+            `PC_BRANCH : pcNext = pcBranch;
+            `PC_JAL    : pcNext = pcJump;
+            `PC_JALR   : pcNext = pcJumpReg;
+        endcase
+    end
 
     register_with_rst pc_r (clk, rst, pcNext, pc);
 
@@ -75,7 +90,8 @@ module sr_cpu
         .cmdF7      ( cmdF7       ),
         .immI       ( immI        ),
         .immB       ( immB        ),
-        .immU       ( immU        )
+        .immU       ( immU        ),
+        .immJ       ( immJ        )
     );
 
     // register file
@@ -83,7 +99,17 @@ module sr_cpu
     wire [31:0] debug_rd;
     wire [31:0] rd1;
     wire [31:0] rd2;
-    wire [31:0] wd3;
+    logic [31:0] wd3;
+
+    always_comb
+    begin
+        case (wdSrc)
+            `WD_ALU     : wd3 = aluResult;
+            `WD_IMM_U   : wd3 = immU;
+            `WD_PCPLUS4 : wd3 = pcPlus4;
+            default     : wd3 = aluResult;
+        endcase
+    end
 
     sr_register_file rf
     (
@@ -102,8 +128,18 @@ module sr_cpu
 
     // alu
 
-    wire [31:0] srcB = aluSrc ? immI : rd2;
+    logic [31:0] srcB;
     wire [31:0] aluResult;
+
+    always_comb
+    begin
+        unique case (aluSrc)
+            `ALUB_RD2   : srcB = rd2;
+            `ALUB_IMM_I : srcB = immI;
+            `ALUB_IMM_J : srcB = immJ;
+            `ALUB_IMM_U : srcB = immU;
+        endcase
+    end
 
     sr_alu alu
     (
@@ -113,8 +149,6 @@ module sr_cpu
         .zero       ( aluZero     ),
         .result     ( aluResult   )
     );
-
-    assign wd3 = wdSrc ? immU : aluResult;
 
     // control
 

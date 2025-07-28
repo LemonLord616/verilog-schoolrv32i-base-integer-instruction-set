@@ -14,6 +14,23 @@
 `ifndef SR_CPU_SVH
 `define SR_CPU_SVH
 
+// Multiplexers (Enums)
+
+// pcSrc
+`define PC_PLUS4    2'b00
+`define PC_BRANCH   2'b01
+`define PC_JAL      2'b10
+`define PC_JALR     2'b11
+// ALU's srcB
+`define ALUB_RD2    2'b00
+`define ALUB_IMM_I  2'b01
+`define ALUB_IMM_J  2'b10
+`define ALUB_IMM_U  2'b11
+// wdSrc
+`define WD_ALU      2'b00
+`define WD_PCPLUS4  2'b01 // jal/jar
+`define WD_IMM_U    2'b10 // lui immediate
+
 // ALU commands
 
 `define ALU_ADD     4'b0000
@@ -21,7 +38,6 @@
 `define ALU_SRL     4'b0010
 `define ALU_SLTU    4'b0011
 `define ALU_SUB     4'b0100
-// New ones
 `define ALU_SLL     4'b0101
 `define ALU_SLT     4'b0110
 `define ALU_XOR     4'b0111
@@ -35,7 +51,6 @@
 `define RVOP_LUI    7'b0110111 // U-type
 // I-type
 `define RVOP_ADDI   7'b0010011
-// New ones (I-type)
 `define RVOP_SLLI   7'b0010011
 `define RVOP_SLTI   7'b0010011
 `define RVOP_SLTIU  7'b0010011
@@ -50,12 +65,14 @@
 `define RVOP_SRL    7'b0110011
 `define RVOP_SLTU   7'b0110011
 `define RVOP_SUB    7'b0110011
-// New ones (R-type)
 `define RVOP_SLL    7'b0110011
 `define RVOP_SLT    7'b0110011
 `define RVOP_XOR    7'b0110011
 `define RVOP_SRA    7'b0110011
 `define RVOP_AND    7'b0110011
+// J-type
+`define RVOP_JAL    7'b1101111
+`define RVOP_JALR   7'b1100111 // Actually I-type
 
 `define RVOP_ANY    7'b???????
 
@@ -66,7 +83,6 @@
 `define RVF3_ADD    3'b000
 // I-type
 `define RVF3_ADDI   3'b000
-// New ones (I-type)
 `define RVF3_SLLI   3'b001
 `define RVF3_SLTI   3'b010
 `define RVF3_SLTIU  3'b011
@@ -81,16 +97,17 @@
 `define RVF3_SLTU   3'b011
 `define RVF3_SUB    3'b000
 `define RVF3_ANY    3'b???
-// New ones (R-type)
 `define RVF3_SLL    3'b001
 `define RVF3_SLT    3'b010
 `define RVF3_XOR    3'b100
 `define RVF3_SRA    3'b101
 `define RVF3_AND    3'b111
+// I-type Jump
+`define RVF3_JALR   3'b000
 
 // Instruction funct7
 
-// New ones (I-type)
+// I-type
 `define RVF7_SLLI   7'b0000000
 `define RVF7_SRLI   7'b0000000
 `define RVF7_SRAI   7'b0100000
@@ -100,7 +117,6 @@
 `define RVF7_SRL    7'b0000000
 `define RVF7_SLTU   7'b0000000
 `define RVF7_SUB    7'b0100000
-// New ones (R-type)
 `define RVF7_SLL    7'b0000000
 `define RVF7_SLT    7'b0000000
 `define RVF7_XOR    7'b0000000
