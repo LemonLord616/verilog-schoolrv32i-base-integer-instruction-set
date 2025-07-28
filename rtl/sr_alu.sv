@@ -33,9 +33,9 @@ module sr_alu
             // New ones TODO: test
             `ALU_SLL  : result =  srcA <<  srcB [4:0];
             `ALU_SLT  : result = ($signed(srcA) <  $signed(srcB)) ? 32'd1 : 32'd0; // Not quite sure about $signed()
-            `ALU_XOR  : result =  src1 ^   src2;
-            `ALU_SRA  : result =  src1 >>> src2;
-            `ALU_AND  : result =  src1 &   src2;
+            `ALU_XOR  : result =  srcA ^   srcB;
+            `ALU_SRA  : result =  srcA >>> srcB;
+            `ALU_AND  : result =  srcA &   srcB;
         endcase
 
     assign zero = (result == '0);

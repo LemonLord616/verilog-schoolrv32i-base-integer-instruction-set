@@ -39,7 +39,7 @@
 `define RVOP_SLLI   7'b0010011
 `define RVOP_SLTI   7'b0010011
 `define RVOP_SLTIU  7'b0010011
-`define RVOP_XOR    7'b0010011
+`define RVOP_XORI   7'b0010011
 `define RVOP_SRLI   7'b0010011
 `define RVOP_SRAI   7'b0010011
 `define RVOP_ORI    7'b0010011
@@ -70,7 +70,7 @@
 `define RVF3_SLLI   3'b001
 `define RVF3_SLTI   3'b010
 `define RVF3_SLTIU  3'b011
-`define RVF3_XOR    3'b100
+`define RVF3_XORI   3'b100
 `define RVF3_SRLI   3'b101
 `define RVF3_SRAI   3'b101
 `define RVF3_ORI    3'b110
