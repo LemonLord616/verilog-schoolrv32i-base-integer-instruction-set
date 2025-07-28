@@ -17,7 +17,7 @@ module sr_alu
 (
     input        [31:0] srcA,
     input        [31:0] srcB,
-    input        [ 2:0] oper,
+    input        [ 3:0] oper,
     output              zero,
     output logic [31:0] result
 );
@@ -32,7 +32,7 @@ module sr_alu
             `ALU_SUB  : result =  srcA -   srcB;
             // New ones TODO: test
             `ALU_SLL  : result =  srcA <<  srcB [4:0];
-            `ALU_SLT  : result = ($signed(srcA) <  $signed(srcB)) ? 32'd1 : 32'd0; // Not quite sure about $signed()
+            `ALU_SLT  : result = ($signed(srcA) <  $signed(srcB)) ? 32'd1 : 32'd0; // TODO: Not quite sure about $signed()
             `ALU_XOR  : result =  srcA ^   srcB;
             `ALU_SRA  : result =  srcA >>> srcB;
             `ALU_AND  : result =  srcA &   srcB;
