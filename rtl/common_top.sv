@@ -71,61 +71,9 @@ module common_top
        assign sound      = '0;
        assign uart_tx    = '1;
 
+    wire pixel_color = '0;
+
     //------------------------------------------------------------------------
-
-    logic pixel_color;
-
-    // character_buffer #(
-    //     // .CLK_FREQ          ( ),
-    //     // .CHAR_HORZ_CNT     ( ),
-    //     // .CHAR_VERT_CNT     ( ),
-    //     // .CHAR_HORZ_W       ( ),
-    //     // .CHAR_VERT_W       ( ),
-    //     // .CHAR_HORZ_PX_SIZE ( ),
-    //     // .CHAR_VERT_PX_SIZE ( ),
-    //     // .PIXEL_HPOS_W      ( ),
-    //     // .PIXEL_VPOS_W      ( ),
-    //     .CURSOR_BLINK_FREQ ( 1 )
-    // ) i_cb (
-    //     .clk           ( clk ),
-    //     .rst           ( rst ),
-
-    //     .char_hpos     ( key[0] ? sw : '0 ),
-    //     .char_vpos     ( key[0] ? '0 : sw ),
-    //     .char_write_en ( key[1] ),
-    //     .char_symbol   ( 8'd97 ),
-
-    //     .cursor_en     ( '0 ),
-    //     .cursor_hpos   ( ),
-    //     .cursor_vpos   ( ),
-
-    //     .pixel_hpos    ( x ),
-    //     .pixel_vpos    ( y ),
-    //     .pixel_color   ( pixel_color )
-    // );
-
-    logic [7:0] ps2_scancode_r;
-    logic [7:0] ps2_ascii_r;
-
-    always_ff @( posedge clk or posedge rst ) begin
-        if (rst)
-        begin
-            ps2_scancode_r <= '0;
-            ps2_ascii_r    <= '0;
-        end
-        else if (ps2_valid & (8'd30 < ps2_ascii) & (ps2_ascii < 8'd130))
-        begin
-            ps2_scancode_r <= ps2_scancode;
-            ps2_ascii_r    <= ps2_ascii;
-        end
-    end
-
-    character_rom icr (
-        .char_hpos  ( x ),
-        .char_vpos  ( y ),
-        .char_code  ( ps2_ascii_r ),
-        .char_pixel ( pixel_color )
-    );
 
     logic [3:0] x4;
 

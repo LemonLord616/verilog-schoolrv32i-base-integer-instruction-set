@@ -22,20 +22,34 @@ module tb;
 
     sr_cpu cpu
     (
-        .clk     ( clk     ),
-        .rst     ( rst     ),
+        .clk            ( clk     ),
+        .rst            ( rst     ),
 
-        .imAddr  ( imAddr  ),
-        .imData  ( imData  ),
+        .instr_addr     ( imAddr  ),
+        .instr_data     ( imData  ),
+        .invalid_instr  (         ),
 
-        .regAddr ( regAddr ),
-        .regData ( regData )
+        .data_addr      (         ),
+        .data_data      (         ),
+
+        .debug_reg_addr ( regAddr ),
+        .debug_reg_data ( regData )
     );
 
     instruction_rom # (.SIZE (1024)) rom
     (
-        .a       ( imAddr  ),
-        .rd      ( imData  )
+        .addr  ( imAddr ),
+        .rdata ( imData )
+    );
+
+    data_ram # (.SIZE (1024)) i_ram
+    (
+        .clk      (  ),
+        .write_en (  ),
+        .raddr    (  ),
+        .waddr    (  ),
+        .rdata    (  ),
+        .wdata    (  )
     );
 
     //------------------------------------------------------------------------
@@ -67,6 +81,7 @@ module tb;
             // Uncomment the following `define
             // to generate a VCD file and analyze it using GTKwave
 
+           $dumpfile ("./sim/icarus/output_files/dump.vcd");
            $dumpvars;
         `endif
 
@@ -90,6 +105,18 @@ module tb;
             `__FILE__);
 
         $finish;
+    end
+
+    //------------------------------------------------------------------------
+
+    final
+    begin
+        $display;
+        $display ("Final registers state:");
+        for(int i = 0; i < 32; i++)
+        begin
+            $display ("Reg x%02d, hex: %h, binary: %b", i, cpu.rf.rf[i], cpu.rf.rf[i]);
+        end
     end
 
     //------------------------------------------------------------------------
