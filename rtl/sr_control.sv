@@ -27,6 +27,7 @@ module sr_control
     output logic [ 1:0] aluSrcB,
     output logic [ 1:0] wdSrc,
     output logic [ 3:0] aluControl,
+    output logic [ 2:0] loadType,
     output logic        invalid_instr
 );
     logic          branch;
@@ -57,6 +58,7 @@ module sr_control
         aluSrcB       = `ALUB_RD2;
         wdSrc         = `WD_ALU;
         aluControl    = `ALU_ADD;
+        loadType      = `LOAD_W;
         write_byte_en = `WBE_NO;
         invalid_instr = 1'b0;
 
@@ -67,7 +69,6 @@ module sr_control
             { `RVF7_SRL,  `RVF3_SRL,  `RVOP_SRL  } : begin regWrite = 1'b1; aluControl = `ALU_SRL;  end
             { `RVF7_SLTU, `RVF3_SLTU, `RVOP_SLTU } : begin regWrite = 1'b1; aluControl = `ALU_SLTU; end
             { `RVF7_SUB,  `RVF3_SUB,  `RVOP_SUB  } : begin regWrite = 1'b1; aluControl = `ALU_SUB;  end
-            // TODO: test
             { `RVF7_SLL,  `RVF3_SLL,  `RVOP_SLL  } : begin regWrite = 1'b1; aluControl = `ALU_SLL;  end
             { `RVF7_SLT,  `RVF3_SLT,  `RVOP_SLT  } : begin regWrite = 1'b1; aluControl = `ALU_SLT;  end
             { `RVF7_XOR,  `RVF3_XOR,  `RVOP_XOR  } : begin regWrite = 1'b1; aluControl = `ALU_XOR;  end
@@ -76,7 +77,6 @@ module sr_control
 
             // I-type
             { `RVF7_ANY,  `RVF3_ADDI, `RVOP_ADDI } : begin regWrite = 1'b1; aluSrcB = `ALUB_IMM_I; aluControl = `ALU_ADD; end
-            // TODO: test
             { `RVF7_SLLI, `RVF3_SLLI, `RVOP_SLLI } : begin regWrite = 1'b1; aluSrcB = `ALUB_IMM_I; aluControl = `ALU_SLL;  end
             { `RVF7_ANY,  `RVF3_SLTI, `RVOP_SLTI } : begin regWrite = 1'b1; aluSrcB = `ALUB_IMM_I; aluControl = `ALU_SLT;  end
             { `RVF7_ANY,  `RVF3_SLTIU,`RVOP_SLTIU} : begin regWrite = 1'b1; aluSrcB = `ALUB_IMM_I; aluControl = `ALU_SLTU; end
@@ -88,7 +88,6 @@ module sr_control
 
             // U-type
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_LUI  } : begin regWrite = 1'b1; wdSrc = `WD_IMM_U; end
-            // TODO: test
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_AUIPC} : begin regWrite = 1'b1; wdSrc = `WD_IMM_U; aluSrcA = `ALUA_PC; aluSrcB = `ALUB_IMM_U; end
 
             // B-type (condZero = 0 by default)
@@ -99,12 +98,16 @@ module sr_control
             { `RVF7_ANY,  `RVF3_BLTU, `RVOP_BLTU } : begin branch = 1'b1; aluControl = `ALU_SLTU; end
             { `RVF7_ANY,  `RVF3_BGEU, `RVOP_BGEU } : begin branch = 1'b1; aluControl = `ALU_SLTU; condZero = 1'b1; end
 
-            // J-type TODO: test
+            // J-type
             { `RVF7_ANY,  `RVF3_JALR, `RVOP_JALR } : begin regWrite = 1'b1; jumpReg = 1'b1; wdSrc = `WD_PCPLUS4; end // I-type actually
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_JAL  } : begin regWrite = 1'b1; jump = 1'b1;    wdSrc = `WD_PCPLUS4; end
             
             // Load/Store
-            { `RVF7_ANY,  `RVF3_LW,   `RVOP_LW   } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; end
+            { `RVF7_ANY,  `RVF3_LB,   `RVOP_LB   } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; loadType = `LOAD_B;  end
+            { `RVF7_ANY,  `RVF3_LH,   `RVOP_LH   } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; loadType = `LOAD_H;  end
+            { `RVF7_ANY,  `RVF3_LW,   `RVOP_LW   } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; loadType = `LOAD_W;  end
+            { `RVF7_ANY,  `RVF3_LBU,  `RVOP_LBU  } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; loadType = `LOAD_BU; end
+            { `RVF7_ANY,  `RVF3_LHU,  `RVOP_LHU  } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; loadType = `LOAD_HU; end
             { `RVF7_ANY,  `RVF3_SW,   `RVOP_SW   } : begin write_byte_en = `WBE_W; aluSrcB = `ALUB_IMM_S; end
 
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_ANY  } : begin invalid_instr = 1'b1; end

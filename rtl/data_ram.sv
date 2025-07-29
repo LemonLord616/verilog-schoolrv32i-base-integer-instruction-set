@@ -13,6 +13,10 @@
 
 `include "sr_cpu.svh"
 
+//
+// Keep in mind that testbench will not allocate much memory
+// Address overflow is not handled at this moment
+//
 module data_ram
 #(
     parameter SIZE = 1024

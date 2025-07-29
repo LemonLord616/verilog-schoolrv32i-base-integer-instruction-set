@@ -33,9 +33,31 @@ module sr_cpu
     output  [31:0]  debug_reg_data  // debug access reg data
 );
 
+    // ram
+
     assign raddr = aluResult;
     assign waddr = aluResult;
     assign wdata = rd2;
+    logic [ 2:0] loadType;
+    logic [31:0] loadData;
+
+    always_comb
+    begin
+        case (loadType)
+            `LOAD_W  : loadData = rdata;
+            `LOAD_H  : begin
+                loadData [15: 0] = rdata [15: 0];
+                loadData [31:16] = { 16 { rdata [31] } }; // sign extend
+            end
+            `LOAD_B  : begin
+                loadData [ 7: 0] = rdata [ 7: 0];
+                loadData [31: 8] = { 24 { rdata [31] } }; // sign extend
+            end
+            `LOAD_HU : loadData = { 16'b0, rdata[15: 0] }; // zero extend
+            `LOAD_BU : loadData = { 24'b0, rdata[ 7: 0] }; // zero extend
+            default  : loadData = rdata;
+        endcase
+    end
 
     // control wires
 
@@ -119,7 +141,7 @@ module sr_cpu
             `WD_ALU     : wd3 = aluResult;
             `WD_IMM_U   : wd3 = immU;
             `WD_PCPLUS4 : wd3 = pcPlus4;
-            `WD_MEM     : wd3 = rdata;
+            `WD_MEM     : wd3 = loadData;
         endcase
     end
 
@@ -174,11 +196,12 @@ module sr_cpu
         .aluZero       ( aluZero       ),
         .pcSrc         ( pcSrc         ),
         .regWrite      ( regWrite      ),
+        .write_byte_en ( write_byte_en ),
         .aluSrcA       ( aluSrcA       ),
         .aluSrcB       ( aluSrcB       ),
         .wdSrc         ( wdSrc         ),
         .aluControl    ( aluControl    ),
-        .write_byte_en ( write_byte_en ),
+        .loadType      ( loadType      ),
         .invalid_instr ( invalid_instr )
     );
 

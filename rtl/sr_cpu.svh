@@ -40,6 +40,12 @@
 `define WBE_W       2'b01 // word
 `define WBE_H       2'b10 // half word
 `define WBE_B       2'b11 // byte
+// loadType (for sign/zero extend)
+`define LOAD_W      3'b000
+`define LOAD_H      3'b001
+`define LOAD_B      3'b010
+`define LOAD_HU     3'b011
+`define LOAD_BU     3'b100
 
 // ALU commands
 
@@ -91,7 +97,13 @@
 `define RVOP_JAL    7'b1101111
 `define RVOP_JALR   7'b1100111 // Actually I-type
 // Load/Write
+`define RVOP_LB     7'b0000011
+`define RVOP_LH     7'b0000011
 `define RVOP_LW     7'b0000011
+`define RVOP_LBU    7'b0000011
+`define RVOP_LHU    7'b0000011
+`define RVOP_SB     7'b0100011
+`define RVOP_SH     7'b0100011
 `define RVOP_SW     7'b0100011
 
 `define RVOP_ANY    7'b???????
@@ -129,8 +141,14 @@
 // I-type Jump
 `define RVF3_JALR   3'b000
 // Load/Write
+`define RVF3_LB     3'b000
+`define RVF3_LH     3'b001
 `define RVF3_LW     3'b010
-`define RVF3_SW     3'b010
+`define RVF3_LBU    3'b100
+`define RVF3_LHU    3'b101
+`define RVF3_SB     3'b000
+`define RVF3_SH     3'b010
+`define RVF3_SW     3'b011
 
 `define RVF3_ANY    3'b???
 
