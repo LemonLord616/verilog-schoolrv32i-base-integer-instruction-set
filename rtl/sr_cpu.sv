@@ -15,20 +15,28 @@
 
 module sr_cpu
 (
-    input           clk,            // clock
-    input           rst,            // reset
+    input           clk,               // clock
+    input           rst,               // reset
 
-    output  [31:0]  instr_addr,     // instruction memory address
-    input   [31:0]  instr_data,     // instruction memory data
+    output  [31:0]  instr_addr,        // instruction memory address
+    input   [31:0]  instr_data,        // instruction memory data
 
-    output  [31:0]  data_addr,      // data memory address
-    input   [31:0]  data_data,      // data memory data
+    output  [ 1:0]  write_byte_en,     // write data in ram on write_byte_en=1
+    output  [31:0]  raddr,             // read ram address
+    input   [31:0]  rdata,             // read ram data
+    output  [31:0]  waddr,             // write ram address
+    output  [31:0]  wdata,             // write ram data
 
     output          invalid_instr,
 
     input   [ 4:0]  debug_reg_addr, // debug access reg address
     output  [31:0]  debug_reg_data  // debug access reg data
 );
+
+    assign raddr = aluResult;
+    assign waddr = aluResult;
+    assign wdata = rd2;
+
     // control wires
 
     wire        aluZero;
@@ -51,6 +59,7 @@ module sr_cpu
     wire [31:0] immB;
     wire [31:0] immU;
     wire [31:0] immJ;
+    wire [31:0] immS;
 
     // program counter
 
@@ -59,6 +68,7 @@ module sr_cpu
     wire [31:0] pcBranch  = pc + immB;
     wire [31:0] pcPlus4   = pc + 32'd4;
     wire [31:0] pcJump    = pc + immJ; // least significant bit is decoded as zero in decoder
+    // TODO: recheck logic
     wire [31:0] pcJumpReg = (rd1 + immI) & ~32'b1; // least significant bit is zero
 
     always_comb
@@ -92,7 +102,8 @@ module sr_cpu
         .immI       ( immI        ),
         .immB       ( immB        ),
         .immU       ( immU        ),
-        .immJ       ( immJ        )
+        .immJ       ( immJ        ),
+        .immS       ( immS        )
     );
 
     // register file
@@ -104,11 +115,11 @@ module sr_cpu
 
     always_comb
     begin
-        case (wdSrc)
+        unique case (wdSrc)
             `WD_ALU     : wd3 = aluResult;
             `WD_IMM_U   : wd3 = immU;
             `WD_PCPLUS4 : wd3 = pcPlus4;
-            default     : wd3 = aluResult;
+            `WD_MEM     : wd3 = rdata;
         endcase
     end
 
@@ -129,9 +140,9 @@ module sr_cpu
 
     // alu
 
-    wire  [31:0] srcA;
-    logic [31:0] srcB;
     wire  [31:0] aluResult;
+    wire  [31:0] srcA = aluSrcA == `ALUA_RD1 ? rd1 : pc;
+    logic [31:0] srcB;
 
     always_comb
     begin
@@ -140,10 +151,9 @@ module sr_cpu
             `ALUB_IMM_I : srcB = immI;
             `ALUB_IMM_J : srcB = immJ;
             `ALUB_IMM_U : srcB = immU;
+            `ALUB_IMM_S : srcB = immS;
         endcase
     end
-
-    assign srcA = aluSrcA == `ALUA_RD1 ? rd1 : pc;
 
     sr_alu alu
     (
@@ -168,6 +178,7 @@ module sr_cpu
         .aluSrcB       ( aluSrcB       ),
         .wdSrc         ( wdSrc         ),
         .aluControl    ( aluControl    ),
+        .write_byte_en ( write_byte_en ),
         .invalid_instr ( invalid_instr )
     );
 

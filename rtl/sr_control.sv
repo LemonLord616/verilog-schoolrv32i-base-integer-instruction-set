@@ -20,16 +20,12 @@ module sr_control
     input        [ 6:0] cmdF7,
     input               aluZero,
 
-    // expanded to 2 bits:
     output logic [ 1:0] pcSrc,
     output logic        regWrite,
-    // new alu src
+    output logic [ 1:0] write_byte_en,
     output logic        aluSrcA,
-    // expanded to 2 bits:
     output logic [ 1:0] aluSrcB,
-    // expanded to 2 bits:
     output logic [ 1:0] wdSrc,
-    // expanded to 4 bits:
     output logic [ 3:0] aluControl,
     output logic        invalid_instr
 );
@@ -61,6 +57,7 @@ module sr_control
         aluSrcB       = `ALUB_RD2;
         wdSrc         = `WD_ALU;
         aluControl    = `ALU_ADD;
+        write_byte_en = `WBE_NO;
         invalid_instr = 1'b0;
 
         casez ({ cmdF7, cmdF3, cmdOp })
@@ -106,6 +103,10 @@ module sr_control
             { `RVF7_ANY,  `RVF3_JALR, `RVOP_JALR } : begin regWrite = 1'b1; jumpReg = 1'b1; wdSrc = `WD_PCPLUS4; end // I-type actually
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_JAL  } : begin regWrite = 1'b1; jump = 1'b1;    wdSrc = `WD_PCPLUS4; end
             
+            // Load/Store
+            { `RVF7_ANY,  `RVF3_LW,   `RVOP_LW   } : begin regWrite = 1'b1; wdSrc = `WD_MEM; aluSrcB = `ALUB_IMM_I; end
+            { `RVF7_ANY,  `RVF3_SW,   `RVOP_SW   } : begin write_byte_en = `WBE_W; aluSrcB = `ALUB_IMM_S; end
+
             { `RVF7_ANY,  `RVF3_ANY,  `RVOP_ANY  } : begin invalid_instr = 1'b1; end
         endcase
     end

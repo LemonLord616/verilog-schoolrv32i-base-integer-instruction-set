@@ -68,10 +68,18 @@ module lab_top
 
     //------------------------------------------------------------------------
 
+    // rom
     wire [ 4:0] regAddr;  // debug access reg address
     wire [31:0] regData;  // debug access reg data
     wire [31:0] imAddr;   // instruction memory address
     wire [31:0] imData;   // instruction memory data
+
+    // ram
+    wire [ 1:0] write_byte_en; // data write on write_byte_en=1
+    wire [31:0] raddr;    // read data address
+    wire [31:0] rdata;    // read data 
+    wire [31:0] wdata;    // write data
+    wire [31:0] waddr;    // write data address
 
     sr_cpu cpu
     (
@@ -80,8 +88,12 @@ module lab_top
 
         .instr_addr     ( imAddr ),
         .instr_data     ( imData ),
-        .data_addr      (  ),
-        .data_data      (  ),
+
+        .raddr          ( raddr  ),
+        .rdata          ( rdata  ),
+        .waddr          ( waddr  ),
+        .wdata          ( wdata  ),
+        .write_byte_en  ( write_byte_en ),
         
         .invalid_instr  (  ),
 
@@ -93,6 +105,16 @@ module lab_top
     (
         .addr    ( imAddr   ),
         .rdata   ( imData   )
+    );
+
+    data_ram # (.SIZE (64)) ram
+    (
+        .clk           ( clk      ),
+        .write_byte_en ( write_byte_en ),
+        .raddr         ( raddr    ),
+        .rdata         ( rdata    ),
+        .waddr         ( waddr    ),
+        .wdata         ( wdata    )
     );
 
     //------------------------------------------------------------------------

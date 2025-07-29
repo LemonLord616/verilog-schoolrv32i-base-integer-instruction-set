@@ -22,10 +22,11 @@
 `define PC_JAL      2'b10
 `define PC_JALR     2'b11
 // ALU's srcB
-`define ALUB_RD2    2'b00
-`define ALUB_IMM_I  2'b01
-`define ALUB_IMM_J  2'b10
-`define ALUB_IMM_U  2'b11
+`define ALUB_RD2    3'b000
+`define ALUB_IMM_I  3'b001
+`define ALUB_IMM_J  3'b010
+`define ALUB_IMM_U  3'b011
+`define ALUB_IMM_S  3'b100
 // ALU's srcA
 `define ALUA_RD1    1'b0
 `define ALUA_PC     1'b1
@@ -33,6 +34,12 @@
 `define WD_ALU      2'b00
 `define WD_PCPLUS4  2'b01 // jal/jar
 `define WD_IMM_U    2'b10 // lui immediate
+`define WD_MEM      2'b11 // load instr
+// write_byte_en
+`define WBE_NO      2'b00 // no write
+`define WBE_W       2'b01 // word
+`define WBE_H       2'b10 // half word
+`define WBE_B       2'b11 // byte
 
 // ALU commands
 
@@ -52,14 +59,12 @@
 // B-type
 `define RVOP_BEQ    7'b1100011
 `define RVOP_BNE    7'b1100011
-// New ones (B-type)
 `define RVOP_BLT    7'b1100011
 `define RVOP_BGE    7'b1100011
 `define RVOP_BLTU   7'b1100011
 `define RVOP_BGEU   7'b1100011
 // U-type
 `define RVOP_LUI    7'b0110111
-// New one (U-type)
 `define RVOP_AUIPC  7'b0010111
 // I-type
 `define RVOP_ADDI   7'b0010011
@@ -82,9 +87,12 @@
 `define RVOP_XOR    7'b0110011
 `define RVOP_SRA    7'b0110011
 `define RVOP_AND    7'b0110011
-// J-type
+// J-type (Jump)
 `define RVOP_JAL    7'b1101111
 `define RVOP_JALR   7'b1100111 // Actually I-type
+// Load/Write
+`define RVOP_LW     7'b0000011
+`define RVOP_SW     7'b0100011
 
 `define RVOP_ANY    7'b???????
 
@@ -120,6 +128,9 @@
 `define RVF3_AND    3'b111
 // I-type Jump
 `define RVF3_JALR   3'b000
+// Load/Write
+`define RVF3_LW     3'b010
+`define RVF3_SW     3'b010
 
 `define RVF3_ANY    3'b???
 

@@ -25,7 +25,8 @@ module sr_decode
     output logic [31:0] immI,
     output logic [31:0] immB,
     output logic [31:0] immU,
-    output logic [31:0] immJ
+    output logic [31:0] immJ,
+    output logic [31:0] immS
 );
     assign cmdOp = instr [ 6: 0];
     assign rd    = instr [11: 7];
@@ -70,6 +71,15 @@ module sr_decode
         immJ [   11] = instr [20];
         immJ [19:12] = instr [19:12];
         immJ [31:20] = { 12 { instr [31] } };
+    end
+
+    // S-type
+
+    always_comb
+    begin
+        immS [ 4: 0] = instr [11: 7];
+        immS [11: 5] = instr [31:25];
+        immS [31:12] = { 20 { instr [31] } };
     end
 
 endmodule
